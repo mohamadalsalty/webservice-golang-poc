@@ -61,3 +61,13 @@ curl http://localhost:8080/read
 ```
 
 This will retrieve all messages stored in the database and display them.
+
+#### Updating a Message
+
+To update an existing message, send a POST request to the `/update` endpoint with the message ID and the new content. Use `curl` like this:
+
+```bash
+curl -X POST http://localhost:8080/update -d "id=1&content=Updated message content"
+```
+
+This will update the message with ID 1 to have the new content "Updated message content".

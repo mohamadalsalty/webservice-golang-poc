@@ -27,6 +27,7 @@ func main() {
 
 	http.HandleFunc("/add", addMessageHandler)
 	http.HandleFunc("/read", readMessagesHandler)
+	http.HandleFunc("/update", updateMessageHandler)
 	log.Println("Server starting on port 8080...")
 	http.ListenAndServe(":8080", nil)
 }
@@ -69,4 +70,35 @@ func readMessagesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprintf(w, "ID: %d, Content: %s\n", id, content)
 	}
+}
+
+func updateMessageHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Parse form data
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	// Extract the message ID and new content from the form data
+	id := r.FormValue("id")
+	content := r.FormValue("content")
+	if id == "" || content == "" {
+		http.Error(w, "Missing id or content", http.StatusBadRequest)
+		return
+	}
+
+	// Update the message in the database
+	_, err = db.Exec("UPDATE messages SET content = $1 WHERE id = $2", content, id)
+	if err != nil {
+		http.Error(w, "Failed to update message", http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "Message updated successfully")
 }
